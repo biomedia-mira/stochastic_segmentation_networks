@@ -1,9 +1,9 @@
-from ssn.models.deepmedic import DeepMedic, SCALE_FACTORS, FEATURE_MAPS, FULLY_CONNECTED, DROPOUT
+from .deepmedic import DeepMedic, SCALE_FACTORS, FEATURE_MAPS, FULLY_CONNECTED, DROPOUT
 import torch.nn as nn
 import torch
 import torch.distributions as td
 import torch.nn.functional as F
-from ssn.trainer.distributions import ReshapedDistribution
+from ..trainer.distributions import ReshapedDistribution
 
 
 class StochasticDeepMedic(DeepMedic):

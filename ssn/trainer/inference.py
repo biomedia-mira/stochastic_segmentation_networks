@@ -1,8 +1,8 @@
 import torch
 import time
 from tqdm import tqdm
-from ssn.trainer.logger import get_logger
-from ssn.trainer.model_trainer import task_predict_fn_dict
+from .logger import get_logger
+from .model_trainer import task_predict_fn_dict
 
 
 class ModelInference(object):

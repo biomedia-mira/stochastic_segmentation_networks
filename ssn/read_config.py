@@ -1,22 +1,24 @@
-from ssn import models
-import ssn.trainer.losses
+from . import models as models
+from .trainer import losses as losses
 import torch.nn
 from torch.utils.data.dataloader import DataLoader
-from ssn.nifti.datasets import PatchWiseNiftiDataset, FullImageToOverlappingPatchesNiftiDataset, worker_init_fn
-from ssn.nifti.savers import NiftiPatchSaver
-import ssn.nifti.transformation
-import ssn.nifti.augmention
-from ssn.trainer.metrics import Loss
-from ssn.trainer.metrics import SegmentationMetrics, SegmentationImageThumbs
-from ssn.trainer.hooks import TrainingEvaluator, ValidationEvaluator, ModelSaverHook, NaNLoss
+from .nifti.datasets import PatchWiseNiftiDataset, FullImageToOverlappingPatchesNiftiDataset, worker_init_fn
+from .nifti.savers import NiftiPatchSaver
+from .nifti import transformation as nifti_transformation
+from .nifti import augmention as nifti_augmentation
+from .nifti import patch_samplers
+from .trainer import metrics as trainer_metrics
+from .trainer.metrics import Loss
+from .trainer.metrics import SegmentationMetrics, SegmentationImageThumbs
+from .trainer.hooks import TrainingEvaluator, ValidationEvaluator, ModelSaverHook, NaNLoss
 
 
 def get_augmentation(augmentation_dict):
-    return [getattr(ssn.nifti.augmention, name)(**kwargs) for name, kwargs in augmentation_dict.items()]
+    return [getattr(nifti_augmentation, name)(**kwargs) for name, kwargs in augmentation_dict.items()]
 
 
 def get_transformation(transformation_dict):
-    return [getattr(ssn.nifti.transformation, name)(**kwargs) for name, kwargs in transformation_dict.items()]
+    return [getattr(nifti_transformation, name)(**kwargs) for name, kwargs in transformation_dict.items()]
 
 
 def get_patch_wise_dataset(config, model, csv_path, train=True):
@@ -31,7 +33,7 @@ def get_patch_wise_dataset(config, model, csv_path, train=True):
     # same sampling used for train and validation to ensure comparable curves
     sampler_type = list(config['training']['sampler'].keys())[0]
     config['training']['sampler'][sampler_type].update({'augmentation': patch_augmentation})
-    sampler_class = getattr(ssn.nifti.patch_samplers, sampler_type)
+    sampler_class = getattr(patch_samplers, sampler_type)
     sampler = sampler_class(input_patch_size, output_patch_size, **config['training']['sampler'][sampler_type])
 
     sampling_mask = config['data']['sampling_mask'] if 'sampling_mask' in config['data'] else None
@@ -106,7 +108,7 @@ def get_metrics(device, config):
     if 'extra_metrics' in config['training']:
         for name, extra_metric in config['training']['extra_metrics'].items():
             key = list(extra_metric.keys())[0]
-            metrics.update({name: getattr(ssn.trainer.metrics, key)(**extra_metric[key])})
+            metrics.update({name: getattr(trainer_metrics, key)(**extra_metric[key])})
     return metrics
 
 
@@ -139,7 +141,7 @@ def get_model(config):
 
 def get_loss(config):
     loss_type = list(config['loss'].keys())[0]
-    loss_class = getattr(ssn.trainer.losses, loss_type)
+    loss_class = getattr(losses, loss_type)
     loss = loss_class(**config['loss'][loss_type])
     return loss
 

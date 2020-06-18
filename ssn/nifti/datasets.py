@@ -6,9 +6,9 @@ import numpy as np
 import math
 import random
 import torch.utils.data as data
-from ssn.nifti.patch_samplers import PatchSampler
-from ssn.nifti.transformation import Transformation
-from ssn.nifti.augmention import RandomAugmentation
+from .patch_samplers import PatchSampler
+from .transformation import Transformation
+from .augmention import RandomAugmentation
 
 
 # numpy.random state is discarded at the end of a worker process and does not propagate between workers or to the

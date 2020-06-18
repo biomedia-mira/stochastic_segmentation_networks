@@ -11,7 +11,7 @@ The preprocessing script will be included in this repository in the future.
 To avoid exploding covariance, we mask out the outside of the brain when computing the covariance matrix.
 
 After downloading and preprocessing the data you can use the data splits we used in the paper which are provided in the folder 
-```data/BraTS2017```. Set the ```path``` variable to the path of your data and run to following commands to replace
+```data/BraTS2017```. Make sure you use the same suffixes we have. Set the ```path``` variable to the path of your data and run to following commands to replace
 the path in the files with your path:
 
     path=/vol/vipdata/data/brain/brats/2017_kostas/preprocessed_v2/Brats17TrainingData
