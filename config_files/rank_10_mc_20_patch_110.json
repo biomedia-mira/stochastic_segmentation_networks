@@ -77,7 +77,7 @@
 		"use_bbox": true
         },
 	"loss": {
-		"StochasticDeepMedicLossMCIntegral": {"num_mc_samples": 20}
+		"StochasticSegmentationNetworkLossMCIntegral": {"num_mc_samples": 20}
 	},
 	"optimizer": {
 		"RMSprop": {
