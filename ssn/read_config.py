@@ -1,24 +1,24 @@
-from . import models as models
-from .trainer import losses as losses
+import models
+from trainer import losses as losses
 import torch.nn
 from torch.utils.data.dataloader import DataLoader
-from .nifti.datasets import PatchWiseNiftiDataset, FullImageToOverlappingPatchesNiftiDataset, worker_init_fn
-from .nifti.savers import NiftiPatchSaver
-from .nifti import transformation as nifti_transformation
-from .nifti import augmention as nifti_augmentation
-from .nifti import patch_samplers
-from .trainer import metrics as trainer_metrics
-from .trainer.metrics import Loss
-from .trainer.metrics import SegmentationMetrics, SegmentationImageThumbs
-from .trainer.hooks import TrainingEvaluator, ValidationEvaluator, ModelSaverHook, NaNLoss
+from nifti.datasets import PatchWiseNiftiDataset, FullImageToOverlappingPatchesNiftiDataset, worker_init_fn
+from nifti.savers import NiftiPatchSaver
+import nifti.transformation
+import nifti.augmention
+from nifti import patch_samplers
+from trainer import metrics as trainer_metrics
+from trainer.metrics import Loss
+from trainer.metrics import SegmentationMetrics, SegmentationImageThumbs
+from trainer.hooks import TrainingEvaluator, ValidationEvaluator, ModelSaverHook, NaNLoss
 
 
 def get_augmentation(augmentation_dict):
-    return [getattr(nifti_augmentation, name)(**kwargs) for name, kwargs in augmentation_dict.items()]
+    return [getattr(nifti.augmention, name)(**kwargs) for name, kwargs in augmentation_dict.items()]
 
 
 def get_transformation(transformation_dict):
-    return [getattr(nifti_transformation, name)(**kwargs) for name, kwargs in transformation_dict.items()]
+    return [getattr(nifti.transformation, name)(**kwargs) for name, kwargs in transformation_dict.items()]
 
 
 def get_patch_wise_dataset(config, model, csv_path, train=True):
