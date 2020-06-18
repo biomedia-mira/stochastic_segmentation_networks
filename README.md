@@ -1,5 +1,7 @@
-Stochastic Segmentation Networks
+##Stochastic Segmentation Networks
 
+
+### BraTS 2017
 To download the data go to  ```https://www.med.upenn.edu/sbia/brats2017/registration.html``` and follow the instructions provided by the challenge's organisers. 
 We preprocess the data using bias-field correction, histogram matching and normalisation, and we computed binary brain masks.
 The preprocessing script will be included in this repository in the future.
@@ -13,9 +15,9 @@ After downloading and preprocessing the data you can use the data splits we used
 the path in the files with your path:
 
     path=/vol/vipdata/data/brain/brats/2017_kostas/preprocessed_v2/Brats17TrainingData
-    sed "s~<path>~$path~g" data/BraTS2017/data_index_train.csv
-    sed "s~<path>~$path~g" data/BraTS2017/data_index_valid.csv
-    sed "s~<path>~$path~g" data/BraTS2017/data_index_test.csv
+    sed -i "s~<path>~$path~g" data/BraTS2017/data_index_train.csv
+    sed -i "s~<path>~$path~g" data/BraTS2017/data_index_valid.csv
+    sed -i "s~<path>~$path~g" data/BraTS2017/data_index_test.csv
 
 
 To train the stochastic segmentation networks run:
@@ -52,3 +54,9 @@ You will need to edit lines 18-21 of this script to include your own paths to ex
     python evaluation/evalute.py
 
 You can pass options ```--detailed True``` to include extra evaluation (takes longer) and ```--make--thumbs True``` to generate png thumbs.
+
+### Toy problem
+
+asdfa
+
+### LIDC 2D

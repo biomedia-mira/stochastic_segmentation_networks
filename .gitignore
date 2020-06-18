@@ -5,3 +5,4 @@ _unused
 *.pyc
 *.nii.gz
 *.nii
+.DS_Store
