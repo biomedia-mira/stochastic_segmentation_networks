@@ -23,7 +23,7 @@ the path in the files with your path:
 To train the stochastic segmentation networks run:
 
     python ssn/train.py --job-dir jobs/rank_10_mc_20_patch_110/train \
-    --config-file config_files/rank_10_mc_20_patch_110.json \
+    --config-file data/config_files/rank_10_mc_20_patch_110.json \
     --train-csv-path data/BraTS2017/data_index_train.csv \
     --valid-csv-path data/BraTS2017/data_index_valid.csv \
     --num-epochs 1200 \
@@ -41,10 +41,10 @@ They are computed on patches, not on full images.
 For inference run:
 
     python ssn/inference.py --job-dir jobs/rank_10_mc_20_patch_110/test \
-    --config-file config_files/rank_10_mc_20_patch_110.json \
+    --config-file data/config_files/rank_10_mc_20_patch_110.json \
     --test-csv-path data/BraTS2017/data_index_test.csv \
     --device 0 \
-    --saved-model-paths "saved_models/rank_10_mc_20_patch_110.pt"
+    --saved-model-paths "data/saved_models/rank_10_mc_20_patch_110.pt"
 
 You will need to change the ```config-file``` and ```saved-model-paths``` according to the model being used.
 You can find the trained models used in our paper in the folder ```saved_models```.
