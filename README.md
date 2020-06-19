@@ -44,9 +44,10 @@ For inference run:
     --config-file config_files/rank_10_mc_20_patch_110.json \
     --test-csv-path data/BraTS2017/data_index_test.csv \
     --device 0 \
-    --saved-model-paths "jobs/rank_10_mc_20_patch_110/train/random_seed_1/saved_models/model_last.torch_model"
+    --saved-model-paths "saved_models/rank_10_mc_20_patch_110.pt"
 
 You will need to change the ```config-file``` and ```saved-model-paths``` according to the model being used.
+You can find the trained models used in our paper in the folder ```saved_models```.
 The inference script will output the mean of the distribution as the prediction as well as the covariance diagonal and covariance factor.
 To generate samples and evaluate your predictions, you will need to use the evaluation script. 
 You will need to edit lines 18-21 of this script to include your own paths to experiments.
