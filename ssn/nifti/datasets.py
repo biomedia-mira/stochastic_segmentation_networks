@@ -259,9 +259,6 @@ class FullImageToOverlappingPatchesNiftiDataset(NiftiDataset, data.IterableDatas
             ps * i + ps // 2 + bbox[dim][0] for i in range((bbox[dim][1] - bbox[dim][0]) // ps + 1))
                   for dim, (s, ps) in enumerate(zip(shape, patch_shape)))
         center_points = list(itertools.product(*c))
-        if len(center_points) != 1:
-            print('Warning: more than one center point!')
-            print('bbox of size', [el[1] - el[0] for el in bbox])
         return center_points
 
     def __iter__(self):
