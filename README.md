@@ -1,8 +1,11 @@
 ##Stochastic Segmentation Networks
 
+Link to paper
+![Figure from paper](assets/images/image_1.png)
+
 
 ### BraTS 2017
-To download the data go to  ```https://www.med.upenn.edu/sbia/brats2017/registration.html``` and follow the instructions provided by the challenge's organisers. 
+To download the data go to  `https://www.med.upenn.edu/sbia/brats2017/registration.html` and follow the instructions provided by the challenge's organisers. 
 We preprocess the data using bias-field correction, histogram matching and normalisation, and we computed binary brain masks.
 The preprocessing script will be included in this repository in the future.
 **Important:** Binary brain masks are necessary for two reasons:
@@ -11,7 +14,7 @@ The preprocessing script will be included in this repository in the future.
 To avoid exploding covariance, we mask out the outside of the brain when computing the covariance matrix.
 
 After downloading and preprocessing the data you can use the data splits we used in the paper which are provided in the folder 
-```assets/BraTS2017_data```. Make sure you use the same suffixes we have. Set the ```path``` variable to the path of your data and run to following commands to replace
+`assets/BraTS2017_data`. Make sure you use the same suffixes we have. Set the `path` variable to the path of your data and run to following commands to replace
 the path in the files with your path:
 
     path=/vol/vipdata/data/brain/brats/2017_kostas/preprocessed_v2/Brats17TrainingData
@@ -19,7 +22,7 @@ the path in the files with your path:
     sed -i "s~<path>~$path~g" assets/BraTS2017_data/data_index_valid.csv
     sed -i "s~<path>~$path~g" assets/BraTS2017_data/data_index_test.csv
 
-
+#### Training
 To train the stochastic segmentation networks run:
 
     python ssn/train.py --job-dir jobs/rank_10_mc_20_patch_110/train \
@@ -30,14 +33,15 @@ To train the stochastic segmentation networks run:
     --device 0 \
     --random-seeds "1"
 
-You can change the ```job-dir``` to whatever you like and use the different config files provided to run the baseline and larger model described in the paper.
+You can change the `job-dir` to whatever you like and use the different config files provided to run the baseline and larger model described in the paper.
 As described in the paper, we found no benefit in using the model with the larger patch for this application. 
 Since it takes significantly longer to train it, you can likely skip that.
-Change the ```device``` variable to the index of the gpu you wish to use or to ```"cpu"```.
+Change the `device` variable to the index of the gpu you wish to use or to `"cpu"`.
     
 **Important:** do not use the numbers printed in the console during training for evaluation. 
 They are computed on patches, not on full images.
 
+#### Inference
 For inference run:
 
     python ssn/inference.py --job-dir jobs/rank_10_mc_20_patch_110/test \
@@ -46,18 +50,49 @@ For inference run:
     --device 0 \
     --saved-model-paths "assets/saved_models/rank_10_mc_20_patch_110.pt"
 
-You will need to change the ```config-file``` and ```saved-model-paths``` according to the model being used.
-You can find the trained models used in our paper in the folder ```saved_models```.
+You will need to change the `config-file` and `saved-model-paths` according to the model being used.
+You can find the pre-trained models used in our paper in the folder `assets/saved_models`.
 The inference script will output the mean of the distribution as the prediction as well as the covariance diagonal and covariance factor.
+
+#### Evaluation
 To generate samples and evaluate your predictions, you will need to use the evaluation script. 
-You will need to edit lines 18-21 of this script to include your own paths to experiments.
 
-    python evaluation/evalute.py
+    python evaluation/evaluate.py --path-to-prediction-csv jobs/rank_10_mc_20_patch_110/test/predictions/prediction.csv
+     
+The results of the evaluations will be stored in the same folder as the `prediction.csv` file.
+Results are saved to disk, so a second run of the same script takes only seconds. 
+Note that most of the time is being used in computing the generalised energy distance and sample diversity and not in sampling.
 
-You can pass options ```--detailed True``` to include extra evaluation (takes longer) and ```--make--thumbs True``` to generate png thumbs.
+
+By default vector image thumbs are generated from which you can create your own figures (with Inkscape for example). 
+Set `--make--thumbs 0` if don't wish to overwrite your images or save time.
+You will need to pass `--is-deterministic 1` if you wish to evaluate the benchmark model.
+If you pass `--detailed 1` with the deterministic model it will generate samples from the independent 
+categorical distributions at the end of the network to illustrate why this is not ideal. 
+It will also calculate the sample diversity generalised energy distance for the single deterministic prediction.
+If you pass `--detailed 1` with stochastic models it will also generate sample vector images varying the temperature for each class. See paper for examples.
+Note that passing `--detailed 1` significantly increases evaluation times. 
+#### Sampling
+The evaluation script is slow because the generalised energy distance and sample diversity computations are pairwise.
+If you just want to generate samples without evaluation run
+    
+    python evaluation/generate_samples.py --path-to-prediction-csv jobs/rank_10_mc_20_patch_110/test/predictions/prediction.csv
+
+All the same extra arguments as the evaluation script apply.
 
 ### Toy problem
 
-asdfa
+To run the toy problem
+    
+    python ssn/toy_problem.py
+    
+Pass `--overwrite True` to overwrite previous runs. You can find the output in `jobs/toy_problem`.
 
 ### LIDC 2D
+
+The LIDC 2D results presented in the paper were generated using a [fork of the PHi-Seg code](https://github.com/MiguelMonteiro/PHiSeg-code).
+Evaluation script is `phiseg_full_evaluation.py`. 
+Loss function in `phiseg/phiseg_model.py`.
+Model in `phiseg/model_zoo/likelihoods.py`.
+Additional configs in `phiseg/experiments`.
+You need to modify `config/system.py`, `phiseg_full_evaluation.py` and `phiseg/experiments/*` with your own local paths.
