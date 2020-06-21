@@ -1,6 +1,8 @@
 ## Stochastic Segmentation Networks
 
-Link to paper and please consider citing here.
+[Press here for the paper](https://arxiv.org/abs/2006.06015)
+
+[Press here for an interactive demo](https://colab.research.google.com/github/MiguelMonteiro/stochastic_segmentation_networks_demo/blob/master/ssn_demo.ipynb)
 
 ![Figure from paper](assets/images/image_1.png)
 
