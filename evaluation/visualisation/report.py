@@ -1,7 +1,7 @@
 import pandas as pd
 from tabulate import tabulate
 import numpy as np
-from evaluation.utils.stats import iqr_v2, nanstderr
+from utils.stats import iqr_v2, nanstderr
 
 DASHES = '-' * 200
 

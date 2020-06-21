@@ -1,4 +1,4 @@
-from evaluation.running_metrics.running_metric import RunningMetric
+from running_metrics.running_metric import RunningMetric
 import numpy as np
 
 

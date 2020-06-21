@@ -1,10 +1,10 @@
-from evaluation.running_metrics.running_probability_distribution import RunningDistributionStatistics
+from running_metrics.running_probability_distribution import RunningDistributionStatistics
 import numpy as np
-from evaluation.utils.stats import compute_metrics_from_cm, iqr_v2
-from evaluation.metrics.overlap_metrics import merge_cm_classes
+from utils.stats import compute_metrics_from_cm, iqr_v2
+from metrics.overlap_metrics import merge_cm_classes
 from tabulate import tabulate
 import matplotlib.pyplot as plt
-from evaluation.utils.stats import nanstderr
+from utils.stats import nanstderr
 
 
 def add_volume_metrics(metrics, voxel_spacing):

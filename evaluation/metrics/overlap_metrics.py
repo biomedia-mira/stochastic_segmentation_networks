@@ -1,8 +1,8 @@
 import os
 import numpy as np
 import pandas as pd
-from evaluation.running_metrics.running_confusion_matrix import RunningConfusionMatrix
-from evaluation.utils.stats import compute_metrics_from_cm
+from running_metrics.running_confusion_matrix import RunningConfusionMatrix
+from utils.stats import compute_metrics_from_cm
 
 
 def compress_running_cm(cm):

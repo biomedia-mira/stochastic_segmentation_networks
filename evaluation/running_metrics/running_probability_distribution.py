@@ -1,4 +1,4 @@
-from evaluation.running_metrics.running_metric import RunningMetric
+from running_metrics.running_metric import RunningMetric
 import torch
 import inspect
 import numpy as np

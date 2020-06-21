@@ -2,14 +2,10 @@ import torch
 import os
 import numpy as np
 from evaluator import Evaluator
-from running_metrics.running_confusion_matrix import RunningConfusionMatrix
-from running_metrics.running_probability_distribution import RunningDistributionStatistics
+from running_metrics.running_sample_generator import RunningSampleGenerator
 from running_metrics.samplers import LowRankMultivariateNormalRandomSampler, \
-    LowRankMultivariateNormalClassWeightedRangeSampler, CategoricalSampler, CategoricalDeterministicSampler
-from metrics.overlap_metrics import OverlapMetrics
-from visualisation.report import report
+    LowRankMultivariateNormalClassWeightedRangeSampler, CategoricalSampler
 from visualisation.slice_visualizer import MostLoadedSliceVisualiser
-from metrics.distribution_statistics import DistributionStatistics
 import argparse
 
 class_names = ['background', 'non-enhancing tumor', 'oedema', 'enhancing tumor']
@@ -20,26 +16,21 @@ DEVICE = 0
 # these are useless, random_sampler is just used to generate noisy samples and deterministic_sampler to
 # calculate generalised energy distance without having to change too much code around
 def get_samplers_deterministic():
-    samplers = {'random_sampler': {'sampler_class': CategoricalSampler,
-                                   'sampler_kwargs': {'device': torch.device(DEVICE), 'seed': None},
-                                   'extra_maps': [],
-                                   'require_prob_maps': True,
-                                   'num_samples': 100},
-                'deterministic_sampler': {'sampler_class': CategoricalDeterministicSampler,
-                                          'sampler_kwargs': {'device': torch.device(DEVICE), 'seed': None},
-                                          'extra_maps': [],
-                                          'require_prob_maps': True,
-                                          'num_samples': 1}
+    samplers = {'random_sampler_samples_only': {'sampler_class': CategoricalSampler,
+                                                'sampler_kwargs': {'device': torch.device(DEVICE), 'seed': None},
+                                                'extra_maps': [],
+                                                'require_prob_maps': True,
+                                                'num_samples': 100},
                 }
     return samplers
 
 
 def get_samplers_stochastic():
-    samplers = {'random_sampler': {'sampler_class': LowRankMultivariateNormalRandomSampler,
-                                   'sampler_kwargs': {'device': torch.device(DEVICE), 'seed': None},
-                                   'extra_maps': ['logit_mean', 'cov_diag', 'cov_factor'],
-                                   'require_prob_maps': False,
-                                   'num_samples': 100}}
+    samplers = {'random_sampler_samples_only': {'sampler_class': LowRankMultivariateNormalRandomSampler,
+                                                'sampler_kwargs': {'device': torch.device(DEVICE), 'seed': None},
+                                                'extra_maps': ['logit_mean', 'cov_diag', 'cov_factor'],
+                                                'require_prob_maps': False,
+                                                'num_samples': 100}}
     return samplers
 
 
@@ -50,16 +41,17 @@ def get_class_weigthed_samplers(scale_range=3):
     for i in range(4):
         kwargs.update({'class_index': i, 'scale_range': np.linspace(-r, r, 2 * r + 1).tolist()})
         samplers.update(
-            {f'class_weighted_sampler_c_{i:d}': {'sampler_class': LowRankMultivariateNormalClassWeightedRangeSampler,
-                                                 'sampler_kwargs': kwargs,
-                                                 'extra_maps': ['logit_mean', 'cov_diag', 'cov_factor'],
-                                                 'require_prob_maps': False,
-                                                 'num_samples': 1}})
+            {f'class_weighted_sampler_c_{i:d}_samples_only': {
+                'sampler_class': LowRankMultivariateNormalClassWeightedRangeSampler,
+                'sampler_kwargs': kwargs,
+                'extra_maps': ['logit_mean', 'cov_diag', 'cov_factor'],
+                'require_prob_maps': False,
+                'num_samples': 1}})
     return samplers
 
 
-def evaluate(csv_path, deterministic, detailed=False, make_thumbs=False, num_samples_cap=20):
-    running_metrics = {'cm': RunningConfusionMatrix(class_names)}
+def evaluate(csv_path, deterministic, detailed=False, make_thumbs=False):
+    running_metrics = {}
 
     samplers = {}
     if deterministic:
@@ -72,14 +64,13 @@ def evaluate(csv_path, deterministic, detailed=False, make_thumbs=False, num_sam
 
     for key, sampler in samplers.items():
         num_samples = sampler['num_samples']
-        running_metrics.update({key: RunningDistributionStatistics(classes=class_names,
-                                                                   require_prob_maps=sampler['require_prob_maps'],
-                                                                   extra_maps=sampler['extra_maps'],
-                                                                   num_samples=num_samples,
-                                                                   sampler_class=sampler['sampler_class'],
-                                                                   sampler_kwargs=sampler['sampler_kwargs'],
-                                                                   num_samples_cap=min(num_samples, num_samples_cap),
-                                                                   block_size=min(2, num_samples))})
+        running_metrics.update({key: RunningSampleGenerator(classes=class_names,
+                                                            require_prob_maps=sampler['require_prob_maps'],
+                                                            extra_maps=sampler['extra_maps'],
+                                                            num_samples=num_samples,
+                                                            sampler_class=sampler['sampler_class'],
+                                                            sampler_kwargs=sampler['sampler_kwargs'],
+                                                            block_size=min(2, num_samples))})
 
     evaluator = Evaluator(class_names,
                           running_metrics,
@@ -93,17 +84,6 @@ def evaluate(csv_path, deterministic, detailed=False, make_thumbs=False, num_sam
     for key, sampler in samplers.items():
         if key != 'deterministic_sampler' and make_thumbs:
             make_sample_thumbs(os.path.join(os.path.dirname(csv_path), key + '.csv'), 1, 1)
-
-    overlap_metrics = OverlapMetrics(running_metrics['cm'])
-    overlap_metrics.add_merged_dataframe(class_mergers)
-    report(overlap_metrics.dataframes, metrics_to_report=('DSC',))
-    for key in samplers.keys():
-        # I am not showing the other numbers because they don't make sense even though they can be computed
-        # I don't want people to get confused
-        if (key == 'random_sampler' and not deterministic) or (deterministic and key == 'deterministic_sampler'):
-            dist_stats = DistributionStatistics(running_metrics[key], class_names, class_mergers)
-            dist_stats.report(['DSC'])
-    return overlap_metrics.dataframes
 
 
 def make_sample_thumbs(sampling_csv, num_samples, number_of_cases_to_plot=50):

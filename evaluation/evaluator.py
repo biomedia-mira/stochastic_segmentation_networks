@@ -3,7 +3,7 @@ import pandas as pd
 import SimpleITK as sitk
 import numpy as np
 from tqdm import tqdm
-from evaluation.running_metrics.running_metric import RunningMetric
+from running_metrics.running_metric import RunningMetric
 
 
 # Needs to be changed to resample at some point
