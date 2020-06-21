@@ -1,6 +1,7 @@
-##Stochastic Segmentation Networks
+## Stochastic Segmentation Networks
 
-Link to paper
+Link to paper and please consider citing here.
+
 ![Figure from paper](assets/images/image_1.png)
 
 
@@ -76,7 +77,7 @@ Note that passing `--detailed 1` significantly increases evaluation times.
 The evaluation script is slow because the generalised energy distance and sample diversity computations are pairwise.
 If you just want to generate samples without evaluation run
     
-    python evaluation/generate_samples.py --path-to-prediction-csv jobs/rank_10_mc_20_patch_110/test/predictions/prediction.csv
+    python evaluation/generate_samples.py --path-to-prediction-csv jobs/rank_10_mc_20_patch_110/test/predictions/prediction.csv --num-samples 10
 
 All the same extra arguments as the evaluation script apply.
 
