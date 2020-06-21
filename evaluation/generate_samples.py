@@ -15,22 +15,22 @@ DEVICE = 0
 
 # these are useless, random_sampler is just used to generate noisy samples and deterministic_sampler to
 # calculate generalised energy distance without having to change too much code around
-def get_samplers_deterministic():
+def get_samplers_deterministic(num_samples):
     samplers = {'random_sampler_samples_only': {'sampler_class': CategoricalSampler,
                                                 'sampler_kwargs': {'device': torch.device(DEVICE), 'seed': None},
                                                 'extra_maps': [],
                                                 'require_prob_maps': True,
-                                                'num_samples': 100},
+                                                'num_samples': num_samples},
                 }
     return samplers
 
 
-def get_samplers_stochastic():
+def get_samplers_stochastic(num_samples):
     samplers = {'random_sampler_samples_only': {'sampler_class': LowRankMultivariateNormalRandomSampler,
                                                 'sampler_kwargs': {'device': torch.device(DEVICE), 'seed': None},
                                                 'extra_maps': ['logit_mean', 'cov_diag', 'cov_factor'],
                                                 'require_prob_maps': False,
-                                                'num_samples': 100}}
+                                                'num_samples': num_samples}}
     return samplers
 
 
@@ -50,15 +50,15 @@ def get_class_weigthed_samplers(scale_range=3):
     return samplers
 
 
-def evaluate(csv_path, deterministic, detailed=False, make_thumbs=False):
+def evaluate(csv_path, deterministic, detailed=False, make_thumbs=False, num_samples=20):
     running_metrics = {}
 
     samplers = {}
     if deterministic:
         if detailed:
-            samplers = get_samplers_deterministic()
+            samplers = get_samplers_deterministic(num_samples)
     else:
-        samplers = get_samplers_stochastic()
+        samplers = get_samplers_stochastic(num_samples)
         if detailed:
             samplers.update(get_class_weigthed_samplers(3))
 
@@ -119,6 +119,10 @@ if __name__ == '__main__':
                         default=True,
                         type=bool,
                         help='Set to true to produce and vector image with image sample thumbs')
+    parser.add_argument('--num-samples',
+                        default=20,
+                        type=int,
+                        help='Number of samples to generate per case')
 
     parse_args, unknown = parser.parse_known_args()
     detailed = parse_args.detailed
