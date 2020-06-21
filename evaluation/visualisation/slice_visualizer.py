@@ -143,7 +143,8 @@ class SliceVisualizer(object):
 class MostLoadedSliceVisualiser(SliceVisualizer):
     def get_slice_numbers(self, image, overlays):
         segmentation = overlays[list(overlays.keys())[0]]
-        return [np.argmax(np.sum(segmentation > 0, axis=(1, 2)))]
+        slice_numbers = [np.argmax(np.sum(segmentation > 0, axis=(1, 2)))]
+        return slice_numbers
 
 
 class MostLoadedSliceVisualizerPerClass(SliceVisualizer):

@@ -11,21 +11,21 @@ The preprocessing script will be included in this repository in the future.
 To avoid exploding covariance, we mask out the outside of the brain when computing the covariance matrix.
 
 After downloading and preprocessing the data you can use the data splits we used in the paper which are provided in the folder 
-```data/BraTS2017```. Make sure you use the same suffixes we have. Set the ```path``` variable to the path of your data and run to following commands to replace
+```assets/BraTS2017_data```. Make sure you use the same suffixes we have. Set the ```path``` variable to the path of your data and run to following commands to replace
 the path in the files with your path:
 
     path=/vol/vipdata/data/brain/brats/2017_kostas/preprocessed_v2/Brats17TrainingData
-    sed -i "s~<path>~$path~g" data/BraTS2017/data_index_train.csv
-    sed -i "s~<path>~$path~g" data/BraTS2017/data_index_valid.csv
-    sed -i "s~<path>~$path~g" data/BraTS2017/data_index_test.csv
+    sed -i "s~<path>~$path~g" assets/BraTS2017_data/data_index_train.csv
+    sed -i "s~<path>~$path~g" assets/BraTS2017_data/data_index_valid.csv
+    sed -i "s~<path>~$path~g" assets/BraTS2017_data/data_index_test.csv
 
 
 To train the stochastic segmentation networks run:
 
     python ssn/train.py --job-dir jobs/rank_10_mc_20_patch_110/train \
-    --config-file data/config_files/rank_10_mc_20_patch_110.json \
-    --train-csv-path data/BraTS2017/data_index_train.csv \
-    --valid-csv-path data/BraTS2017/data_index_valid.csv \
+    --config-file assets/config_files/rank_10_mc_20_patch_110.json \
+    --train-csv-path assets/BraTS2017_data/data_index_train.csv \
+    --valid-csv-path assets/BraTS2017_data/data_index_valid.csv \
     --num-epochs 1200 \
     --device 0 \
     --random-seeds "1"
@@ -41,10 +41,10 @@ They are computed on patches, not on full images.
 For inference run:
 
     python ssn/inference.py --job-dir jobs/rank_10_mc_20_patch_110/test \
-    --config-file data/config_files/rank_10_mc_20_patch_110.json \
-    --test-csv-path data/BraTS2017/data_index_test.csv \
+    --config-file assets/config_files/rank_10_mc_20_patch_110.json \
+    --test-csv-path assets/BraTS2017_data/data_index_test.csv \
     --device 0 \
-    --saved-model-paths "data/saved_models/rank_10_mc_20_patch_110.pt"
+    --saved-model-paths "assets/saved_models/rank_10_mc_20_patch_110.pt"
 
 You will need to change the ```config-file``` and ```saved-model-paths``` according to the model being used.
 You can find the trained models used in our paper in the folder ```saved_models```.

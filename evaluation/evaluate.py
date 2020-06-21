@@ -15,9 +15,13 @@ import argparse
 
 class_names = ['background', 'non-enhancing tumor', 'oedema', 'enhancing tumor']
 class_mergers = {'tumor core': {'non-enhancing tumor', 'enhancing tumor'}}
-benchmark_csv = 'jobs/BraTS/benchmark/inference/test/predictions/prediction.csv'
-rank_10_mc_20_patch_110_csv = 'jobs/BraTS/rank_10_mc_20_patch_110/inference/test/predictions/prediction.csv'
-rank_10_mc_20_patch_140_csv = 'jobs/BraTS/rank_10_mc_20_patch_140/inference/test/predictions/prediction.csv'
+# benchmark_csv = 'jobs/BraTS/benchmark/inference/test/predictions/prediction.csv'
+# rank_10_mc_20_patch_110_csv = 'jobs/BraTS/rank_10_mc_20_patch_110/inference/test/predictions/prediction.csv'
+# rank_10_mc_20_patch_140_csv = 'jobs/BraTS/rank_10_mc_20_patch_140/inference/test/predictions/prediction.csv'
+path = '/vol/biomedic/users/mm6818/Projects/variational_hydra/'
+benchmark_csv = path + 'jobs/BraTS/benchmark/inference/test/predictions/prediction.csv'
+rank_10_mc_20_patch_110_csv = path + 'jobs/BraTS/rank_10_mc_20_patch_110/inference/test/predictions/prediction.csv'
+rank_10_mc_20_patch_140_csv = path + 'jobs/BraTS/rank_10_mc_20_patch_140/inference/test/predictions/prediction.csv'
 model_csvs = [benchmark_csv, rank_10_mc_20_patch_110_csv, rank_10_mc_20_patch_140_csv]
 
 
@@ -78,8 +82,8 @@ def evaluate(csv_path, deterministic, detailed=False, make_thumbs=False, num_sam
             samplers = get_samplers_deterministic()
     else:
         samplers = get_samplers_stochastic()
-        # if detailed:
-        #     samplers.update(get_class_weigthed_samplers(3))
+        if detailed:
+            samplers.update(get_class_weigthed_samplers(3))
 
     for key, sampler in samplers.items():
         num_samples = sampler['num_samples']
@@ -91,8 +95,6 @@ def evaluate(csv_path, deterministic, detailed=False, make_thumbs=False, num_sam
                                                                    sampler_kwargs=sampler['sampler_kwargs'],
                                                                    num_samples_cap=num_samples_cap,
                                                                    block_size=min(2, num_samples))})
-        if key == 'random_sampler' and make_thumbs:
-            make_sample_thumbs(os.path.join(os.path.dirname(csv_path), key + '.csv'), num_samples_cap)
 
     evaluator = Evaluator(class_names,
                           running_metrics,
@@ -103,14 +105,16 @@ def evaluate(csv_path, deterministic, detailed=False, make_thumbs=False, num_sam
 
     running_metrics = evaluator(csv_path)
 
+    for key, sampler in samplers.items():
+        if key != 'deterministic_sampler' and make_thumbs:
+            make_sample_thumbs(os.path.join(os.path.dirname(csv_path), key + '.csv'), 1, 1)
+
     overlap_metrics = OverlapMetrics(running_metrics['cm'])
     overlap_metrics.add_merged_dataframe(class_mergers)
     report(overlap_metrics.dataframes, metrics_to_report=('DSC',))
     for key in samplers.keys():
         dist_stats = DistributionStatistics(running_metrics[key], class_names, class_mergers)
         dist_stats.report(['DSC'])
-    # if csv_path == rank_10_mc_20_patch_110_csv:
-    #     dist_stats.sample_distribution_plot('DSC', overlap_metrics.dataframes)
     return overlap_metrics.dataframes
 
 
@@ -135,19 +139,15 @@ if __name__ == '__main__':
     parser.add_argument('--detailed',
                         default=False,
                         type=bool,
-                        help='Directory for checkpoints, exports, and '
-                             'logs. Use an existing directory to load a '
-                             'trained model, or a new directory to retrain')
-    parser.add_argument('--make_thumbs',
+                        help='Set to true to compute extra evaluation and visualisation, takes much more time')
+    parser.add_argument('--make-thumbs',
                         default=False,
                         type=bool,
-                        help='Directory for checkpoints, exports, and '
-                             'logs. Use an existing directory to load a '
-                             'trained model, or a new directory to retrain')
+                        help='Set to true to produce and vector image with image sample thumbs')
 
     parse_args, unknown = parser.parse_known_args()
-    detailed = parse_args['detailed']
-    make_thumbs = parse_args['make_thumbs']
+    detailed = parse_args.detailed
+    make_thumbs = parse_args.make_thumbs
 
     overlap_metrics_dataframes = {}
     for csv_path in model_csvs:

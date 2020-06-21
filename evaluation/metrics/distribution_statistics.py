@@ -117,8 +117,6 @@ class DistributionStatistics(object):
             per_class_benchmark['avg'] = np.array(benchmark_avg[order])
 
         for c, (class_, metrics) in enumerate(per_class_data.items()):
-            if class_ != 'avg':
-                continue
             fig, ax = plt.subplots(figsize=(18, 6), constrained_layout=True)
             boxplot = ax.boxplot(per_class_data[class_].transpose(),
                                  boxprops=dict(facecolor='#0496FF', color='#0496FF'),
@@ -137,21 +135,10 @@ class DistributionStatistics(object):
                 ax.bar(x, quality, color='#ffd604', zorder=-1, edgecolor='#9e9100', align='center', width=1.)
                 plt.plot([0, x[-1] + 1], [np.nanmean(quality)] * 2, linestyle='--', color='black')
 
-                message = class_ + '\n'
-                thresholds = [0.01, 0.05, 0.25, 0.5]
-                for threshold in thresholds:
-                    ind = quality > threshold
-                    message += f'threshold {threshold:.2f}: {np.sum(ind):d}/{len(ind):d} ({np.mean(ind):.2f})\n'
-                message += f'mean quality: {np.nanmean(quality):.4f} +- {nanstderr(quality):.4f}\n'
-                print(message)
-                # ind = np.nanmax(per_class_data[class_], axis=-1) >= benchmark
-                # for i, patch in zip(ind, boxplot['boxes']):
-                #     patch.set_facecolor('green' if i else 'red')
             ax.set_xticks([])
             for tick in ax.yaxis.get_major_ticks():
                 tick.label1.set_fontsize(12)
                 tick.label1.set_fontweight('bold')
             ax.set_ylim((0, 1))
-            fig.savefig('/vol/biomedic/users/mm6818/sample_gain.pdf')
             fig.show()
-            exit(1)
+

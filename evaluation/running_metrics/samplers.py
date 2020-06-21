@@ -24,6 +24,7 @@ class Sampler(object):
         raise NotImplementedError
 
 
+# this is to show what happens if you sample from independent categoricals, no one does this in practise for good reason
 class CategoricalSampler(Sampler):
     def __init__(self, prob_maps, device, seed=None):
         super().__init__(seed)
@@ -36,6 +37,7 @@ class CategoricalSampler(Sampler):
         return tensors_to_sitk_images(samples), samples, prob_maps
 
 
+# not actually a sampler it's just the argmax, just makes it easier to compute D_GED^2 without changing too much code
 class CategoricalDeterministicSampler(Sampler):
     def __init__(self, prob_maps, device, seed=None):
         super().__init__(seed)
@@ -118,6 +120,7 @@ class LowRankMultivariateNormalWeightedSampler(LowRankMultivariateNormalRandomSa
         self.eps_D = _standard_normal(shape, dtype=self.dist.loc.dtype, device=self.dist.loc.device)
 
     def get_weighted_samples(self,
+                             temperature = 1.,
                              rank_weights: torch.Tensor = None,
                              class_weights: torch.Tensor = None):
         rank_weights = torch.ones(self.rank, device=self.device) if rank_weights is None else \
