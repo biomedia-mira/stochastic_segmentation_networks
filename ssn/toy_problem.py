@@ -7,6 +7,7 @@ import math
 import torch.nn as nn
 import pickle
 import copy
+import argparse
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from torch.distributions.multivariate_normal import _batch_mv
 from torch.distributions.utils import _standard_normal, lazy_property
@@ -174,7 +175,7 @@ class LowRankMultivariateNormal(object):
         W_shape = shape[:-1] + self.cov_factor.shape[-1:]
         eps_W = _standard_normal(W_shape, dtype=self.loc.dtype, device=self.loc.device)
         eps_D = _standard_normal(shape, dtype=self.loc.dtype, device=self.loc.device)
-        return (self.loc + _batch_mv(self.cov_factor, eps_W) + self.cov_diag.sqrt() * eps_D)
+        return self.loc + _batch_mv(self.cov_factor, eps_W) + self.cov_diag.sqrt() * eps_D
 
 
 # Diagonal rank gaussian
@@ -251,16 +252,22 @@ def run_toy_problem(model_type, dim=21, get_target_fn=get_on_off_binary_target):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--overwrite',
+                        default=False,
+                        type=bool,
+                        help='Whether to overwrite previous run.')
+    parse_args, unknown = parser.parse_known_args()
+    overwrite = parse_args.overwrite
     dim = 21
     get_target_fn = get_on_off_binary_target
 
-    output_dir = '/vol/biomedic/users/mm6818/Projects/variational_hydra/toy_problem'
+    output_dir = 'jobs/toy_problem'
     os.makedirs(output_dir, exist_ok=True)
 
     target_sample = get_target_fn(dim, noise_level=0)
     show_images(target_sample, dim, output_path=os.path.join(output_dir, 'target_samples.pdf'))
 
-    overwrite = False
     for model_type in ['low_rank', 'diagonal']:
         dist_path = os.path.join(output_dir, model_type + '_dist.model')
         if overwrite or not os.path.exists(dist_path):
