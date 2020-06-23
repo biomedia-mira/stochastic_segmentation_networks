@@ -233,12 +233,7 @@ class FullImageToOverlappingPatchesNiftiDataset(NiftiDataset, data.IterableDatas
         self.image_mapping = {}
         for image_index, row in self.data_index.iterrows():
             target_shape = sitk.ReadImage(self.data_index.loc[image_index][self.channels[0]]).GetSize()[::-1]
-            if use_bbox:
-                bbox = self.get_bbox(
-                    sitk.GetArrayFromImage(sitk.ReadImage(self.data_index.loc[image_index][self.sampling_mask])))
-                center_points = self.get_center_points_bbox(target_shape, target_patch_shape, bbox)
-            else:
-                center_points = self.get_center_points(target_shape, target_patch_shape)
+            center_points = self.get_center_points(target_shape, target_patch_shape)
             self.image_mapping[image_index] = (target_shape, center_points)
             for patch_index in range(len(center_points)):
                 self.index_mapping.append((image_index, patch_index))

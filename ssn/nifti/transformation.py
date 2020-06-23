@@ -1,4 +1,6 @@
 import numpy as np
+
+
 # All transformations can't alter state after __init__ because of dataset class when num_workers > 0
 
 
@@ -41,4 +43,32 @@ class MaskImageUsingSamplingMask(Transformation):
 
     def __call__(self, image, target, sampling_mask):
         image[np.broadcast_to(np.logical_not(sampling_mask), shape=image.shape)] = self.outside_value
+        return image, target, sampling_mask
+
+
+class BrainMaskFromChannel(Transformation):
+    def __init__(self, channel_idx=0):
+        self.channel_idx = channel_idx
+
+    def __call__(self, image, target, sampling_mask):
+        sampling_mask = np.logical_and(sampling_mask, image[self.channel_idx] > 0)
+        return image, target, sampling_mask
+
+
+class PerChannelZScoreNormalisation(Transformation):
+    def __init__(self, cutoff_percentiles=(5., 95.), cutoff_below_mean=True):
+        self.cutoff_percentiles = cutoff_percentiles
+        self.cutoff_below_mean = cutoff_below_mean
+
+    def __call__(self, image, target, sampling_mask):
+        for i, channel in enumerate(image):
+            low, high = np.percentile(channel[sampling_mask], self.cutoff_percentiles)
+            norm_mask = np.logical_and(sampling_mask, np.logical_and(channel > low, channel < high))
+            if self.cutoff_below_mean:
+                norm_mask = np.logical_and(norm_mask, channel > np.mean(channel))
+
+            masked_channel = channel[norm_mask]
+            normalised_channel = (channel - np.mean(masked_channel)) / np.std(masked_channel)
+            image[i] = normalised_channel
+
         return image, target, sampling_mask
