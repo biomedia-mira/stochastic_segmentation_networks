@@ -13,8 +13,9 @@
 		"class_names": ["foreground", "necrotic core", "oedema", "enhancing tumor"],
 		"channels": ["flair", "t1", "t1ce", "t2"],
 		"target": "seg",
-		"sampling_mask": "sampling_mask",
-		"transformation": {}
+		"transformation": {
+			"BrainMaskFromChannel": {"channel_idx":  1},
+			"PerChannelZScoreNormalisation": {}}
 	},
 	"training": {
 		"batch_size": 4,
@@ -73,8 +74,7 @@
                 "input_patch_size": [110, 110, 110],
                 "num_workers": 1,
                 "extra_output_names": ["logit_mean", "cov_diag", "cov_factor"],
-                "eval_every": 5000, 
-		"use_bbox": true
+                "eval_every": 5000
         },
 	"loss": {
 		"StochasticSegmentationNetworkLossMCIntegral": {"num_mc_samples": 20}
