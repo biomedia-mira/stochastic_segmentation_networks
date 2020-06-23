@@ -1,10 +1,32 @@
 ## Stochastic Segmentation Networks
 
-[Press here for the paper](https://arxiv.org/abs/2006.06015)
+[![arXiv](http://img.shields.io/badge/arXiv-2006.06015-B31B1B.svg)](https://arxiv.org/abs/2006.06015)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MiguelMonteiro/stochastic_segmentation_networks_demo/blob/master/ssn_demo.ipynb)
 
-[Press here for an interactive demo](https://colab.research.google.com/github/MiguelMonteiro/stochastic_segmentation_networks_demo/blob/master/ssn_demo.ipynb)
+[\[Paper\]](https://arxiv.org/abs/2006.06015)
+[\[Interactive Demo\]](https://colab.research.google.com/github/MiguelMonteiro/stochastic_segmentation_networks_demo/blob/master/ssn_demo.ipynb)
 
 ![Figure from paper](assets/images/image_1.png)
+
+
+This repository contains the code for the paper:
+> Monteiro, M., Folgoc, L., Castro, D.C., Pawlowski, N., Marques, B., Kamnitsas, K., van der Wilk, M. and Glocker, B., _Stochastic Segmentation Networks: Modelling Spatially Correlated Aleatoric Uncertainty_, 2020 [[arXiv]](https://arxiv.org/abs/2006.06015)
+
+
+If you use these tools in your publications, please consider citing our paper:
+```
+@article{monteiro2020stochastic,
+    title={Stochastic Segmentation Networks: Modelling Spatially Correlated Aleatoric Uncertainty},
+    author={Miguel Monteiro and Loïc Le Folgoc and Daniel Coelho de Castro and Nick Pawlowski and Bernardo Marques and Konstantinos Kamnitsas and Mark van der Wilk and Ben Glocker},
+    year={2020},
+    eprint = {arXiv:2006.06015}
+}
+```
+
+### Requirements
+Install the necessary requirements:
+
+    pip install requirements.txt
 
 
 ### BraTS 2017
