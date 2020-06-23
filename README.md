@@ -13,7 +13,7 @@ This repository contains the code for the paper:
 > Monteiro, M., Folgoc, L., Castro, D.C., Pawlowski, N., Marques, B., Kamnitsas, K., van der Wilk, M. and Glocker, B., _Stochastic Segmentation Networks: Modelling Spatially Correlated Aleatoric Uncertainty_, 2020 [[arXiv]](https://arxiv.org/abs/2006.06015)
 
 
-If you use these tools in your publications, please consider citing our paper:
+If you use our code in your publications, please consider citing our paper:
 ```
 @article{monteiro2020stochastic,
     title={Stochastic Segmentation Networks: Modelling Spatially Correlated Aleatoric Uncertainty},
@@ -30,19 +30,19 @@ Install the necessary requirements:
 
 
 ### BraTS 2017
-To download the data go to  `https://www.med.upenn.edu/sbia/brats2017/registration.html` and follow the instructions provided by the challenge's organisers. 
-We preprocess the data using bias-field correction, histogram matching and normalisation, and we computed binary brain masks.
-The preprocessing script will be included in this repository in the future.
-**Important:** Binary brain masks are necessary for two reasons:
-1) The model is training on patches, and so we need to know where the brain is to sample patches inside the brain and avoid sampling patches contained only air.
+To download the data, go to  `https://www.med.upenn.edu/sbia/brats2017/registration.html` and follow the instructions provided by the challenge's organisers. 
+**The enhancing core class comes labelled as 4 in the ground-truth segmentation, you will need to relabel it as 3 for all images for training to work**
+The reaming preprocessing is done internally.
+If you use this model for other data, notice how we calculate binary brain masks. These are necessary for two reasons:
+1) The model is training on patches, and so we need to know where the brain is to sample patches inside the brain and avoid sampling patches containing only air.
 2) A limitation of our method is that is it is numerically unstable in areas with infinite covariance such as the air outside the brain.
 To avoid exploding covariance, we mask out the outside of the brain when computing the covariance matrix.
 
-After downloading and preprocessing the data you can use the data splits we used in the paper which are provided in the folder 
+After downloading and relabelling the data you can use the data splits we used in the paper which are provided in the folder 
 `assets/BraTS2017_data`. Make sure you use the same suffixes we have. Set the `path` variable to the path of your data and run to following commands to replace
 the path in the files with your path:
 
-    path=/vol/vipdata/data/brain/brats/2017_kostas/preprocessed_v2/Brats17TrainingData
+    path=/vol/vipdata/data/brain/brats/2017/original/Brats17TrainingData
     sed -i "s~<path>~$path~g" assets/BraTS2017_data/data_index_train.csv
     sed -i "s~<path>~$path~g" assets/BraTS2017_data/data_index_valid.csv
     sed -i "s~<path>~$path~g" assets/BraTS2017_data/data_index_test.csv
@@ -61,7 +61,7 @@ To train the stochastic segmentation networks run:
 You can change the `job-dir` to whatever you like and use the different config files provided to run the baseline and larger model described in the paper.
 As described in the paper, we found no benefit in using the model with the larger patch for this application. 
 Since it takes significantly longer to train it, you can likely skip that.
-Change the `device` variable to the index of the gpu you wish to use or to `"cpu"`.
+Change the `device` variable to the index of the GPU you wish to use or to `"cpu"`.
     
 **Important:** do not use the numbers printed in the console during training for evaluation. 
 They are computed on patches, not on full images.
@@ -79,6 +79,14 @@ You will need to change the `config-file` and `saved-model-paths` according to t
 You can find the pre-trained models used in our paper in the folder `assets/saved_models`.
 The inference script will output the mean of the distribution as the prediction as well as the covariance diagonal and covariance factor.
 
+#### "Covariance became not invertible using independent normals for this batch!"
+
+This message occurs when a patch containing a lot of background is fed to the model.
+During inference, you do not need to worry about this since it does not change the final results in any way. It just means that we are processing the air around the brain. 
+During training this message can **very rarely** occurs when a patch is sampled contained a lot of background. 
+When this occurs, we decided to use independent normal distributions to prevent the code from crashing altogether.
+If during training with new data, you see this message occur very frequently, please consider changing your ROI masks. 
+
 #### Evaluation
 To generate samples and evaluate your predictions, you will need to use the evaluation script. 
 
@@ -88,18 +96,18 @@ The results of the evaluations will be stored in the same folder as the `predict
 Results are saved to disk, so a second run of the same script takes only seconds. 
 Note that most of the time is being used in computing the generalised energy distance and sample diversity and not in sampling.
 
-
-By default vector image thumbs are generated from which you can create your own figures (with Inkscape for example). 
+By default vector image thumbs are generated from which you can create figures (with Inkscape for example). 
 Set `--make--thumbs 0` if don't wish to overwrite your images or save time.
 You will need to pass `--is-deterministic 1` if you wish to evaluate the benchmark model.
 If you pass `--detailed 1` with the deterministic model it will generate samples from the independent 
 categorical distributions at the end of the network to illustrate why this is not ideal. 
 It will also calculate the sample diversity generalised energy distance for the single deterministic prediction.
-If you pass `--detailed 1` with stochastic models it will also generate sample vector images varying the temperature for each class. See paper for examples.
-Note that passing `--detailed 1` significantly increases evaluation times. 
+If you pass `--detailed 1` with stochastic models, it will also generate sample vector images varying the temperature for each class. See paper for examples.
+Note that passing `--detailed 1` significantly increases evaluation times.
+
 #### Sampling
 The evaluation script is slow because the generalised energy distance and sample diversity computations are pairwise.
-If you just want to generate samples without evaluation run
+If you just want to generate samples without evaluation run:
     
     python evaluation/generate_samples.py --path-to-prediction-csv jobs/rank_10_mc_20_patch_110/test/predictions/prediction.csv --num-samples 10
 
