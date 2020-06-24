@@ -358,11 +358,11 @@ if __name__ == '__main__':
                 output_dataframe.loc[id_, suffix] = output_path
                 os.makedirs(os.path.dirname(output_path), exist_ok=True)
                 sitk.WriteImage(normalised_channel, output_path)
-        output_dataframe.index.name = 'id'
-        os.makedirs('assets/BraTS2017_data', exist_ok=True)
-        train_index = output_dataframe.loc[train_ids]
-        train_index.to_csv('assets/BraTS2017_data/data_index_train.csv')
-        valid_index = output_dataframe.loc[valid_ids]
-        valid_index.to_csv('assets/BraTS2017_data/data_index_valid.csv')
-        test_index = output_dataframe.loc[test_ids]
-        test_index.to_csv('assets/BraTS2017_data/data_index_test.csv')
+    output_dataframe.index.name = 'id'
+    os.makedirs('assets/BraTS2017_data', exist_ok=True)
+    train_index = output_dataframe.loc[train_ids]
+    train_index.to_csv('assets/BraTS2017_data/data_index_train.csv')
+    valid_index = output_dataframe.loc[valid_ids]
+    valid_index.to_csv('assets/BraTS2017_data/data_index_valid.csv')
+    test_index = output_dataframe.loc[test_ids]
+    test_index.to_csv('assets/BraTS2017_data/data_index_test.csv')
