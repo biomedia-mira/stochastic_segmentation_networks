@@ -13,9 +13,8 @@
 		"class_names": ["foreground", "necrotic core", "oedema", "enhancing tumor"],
 		"channels": ["flair", "t1", "t1ce", "t2"],
 		"target": "seg",
-		"transformation": {
-			"BrainMaskFromChannel": {"channel_idx":  1},
-			"PerChannelZScoreNormalisation": {}}
+		"sampling_mask": "sampling_mask",
+		"transformation": {}
 	},
 	"training": {
 		"batch_size": 4,

@@ -23,29 +23,23 @@ If you use our code in your publications, please consider citing our paper:
 }
 ```
 
-### Requirements
+
+### BraTS 2017
+Clone this repository and `cd` into the directory.
 Install the necessary requirements:
 
     pip install requirements.txt
-
-
-### BraTS 2017
+    
 To download the data, go to  `https://www.med.upenn.edu/sbia/brats2017/registration.html` and follow the instructions provided by the challenge's organisers. 
-**The enhancing core class comes labelled as 4 in the ground-truth segmentation, you will need to relabel it as 3 for all images for training to work**
-The reaming preprocessing is done internally.
+Run the following script to preprocess the data:
+
+    python evaluation/preprocessing.py --input-dir <path-to-input-dir> --output-dir <path-to-output-dir>
+
+The script will also split the data into the splits we have used in the paper.
 If you use this model for other data, notice how we calculate binary brain masks. These are necessary for two reasons:
 1) The model is training on patches, and so we need to know where the brain is to sample patches inside the brain and avoid sampling patches containing only air.
 2) A limitation of our method is that is it is numerically unstable in areas with infinite covariance such as the air outside the brain.
 To avoid exploding covariance, we mask out the outside of the brain when computing the covariance matrix.
-
-After downloading and relabelling the data you can use the data splits we used in the paper which are provided in the folder 
-`assets/BraTS2017_data`. Make sure you use the same suffixes we have. Set the `path` variable to the path of your data and run to following commands to replace
-the path in the files with your path:
-
-    path=/vol/vipdata/data/brain/brats/2017/original/Brats17TrainingData
-    sed -i "s~<path>~$path~g" assets/BraTS2017_data/data_index_train.csv
-    sed -i "s~<path>~$path~g" assets/BraTS2017_data/data_index_valid.csv
-    sed -i "s~<path>~$path~g" assets/BraTS2017_data/data_index_test.csv
 
 #### Training
 To train the stochastic segmentation networks run:
