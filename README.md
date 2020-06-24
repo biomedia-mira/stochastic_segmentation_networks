@@ -25,8 +25,8 @@ If you use our code in your publications, please consider citing our paper:
 
 
 ### BraTS 2017
-Clone this repository and `cd` into the directory.
-Install the necessary requirements:
+To run this code clone this repository and `cd` into the directory.
+Install the necessary requirements on your environment of choice:
 
     pip install requirements.txt
     
@@ -35,7 +35,7 @@ Run the following script to preprocess the data:
 
     python evaluation/preprocessing.py --input-dir <path-to-input-dir> --output-dir <path-to-output-dir>
 
-The script will also split the data into the splits we have used in the paper.
+The script will also split the data into the splits we have used in the paper. See folder `assets/BraTS2017_data`.
 If you use this model for other data, notice how we calculate binary brain masks. These are necessary for two reasons:
 1) The model is training on patches, and so we need to know where the brain is to sample patches inside the brain and avoid sampling patches containing only air.
 2) A limitation of our method is that is it is numerically unstable in areas with infinite covariance such as the air outside the brain.
@@ -70,7 +70,7 @@ For inference run:
     --saved-model-paths "assets/saved_models/rank_10_mc_20_patch_110.pt"
 
 You will need to change the `config-file` and `saved-model-paths` according to the model being used.
-You can find the pre-trained models used in our paper in the folder `assets/saved_models`.
+You can find the pre-trained models in the folder `assets/saved_models`.
 The inference script will output the mean of the distribution as the prediction as well as the covariance diagonal and covariance factor.
 
 #### "Covariance became not invertible using independent normals for this batch!"
