@@ -23,19 +23,19 @@ If you use our code in your publications, please consider citing our paper:
 }
 ```
 
-
-### BraTS 2017
-To run this code clone this repository and `cd` into the directory.
+### Requirements
 Install the necessary requirements on your environment of choice:
 
     pip install requirements.txt
-    
-To download the data, go to  `https://www.med.upenn.edu/sbia/brats2017/registration.html` and follow the instructions provided by the challenge's organisers. 
+
+### BraTS 2017 
+To download the data, go to [this page](https://www.med.upenn.edu/sbia/brats2017/registration.html) and follow the instructions provided by the challenge's organisers. 
 Run the following script to preprocess the data:
 
     python evaluation/preprocessing.py --input-dir <path-to-input-dir> --output-dir <path-to-output-dir>
 
-The script will also split the data into the splits we have used in the paper. See folder `assets/BraTS2017_data`.
+This script will also split the data into the splits we have used in the paper. 
+See folder `assets/BraTS2017_data` after preprocessing.
 If you use this model for other data, notice how we calculate binary brain masks. These are necessary for two reasons:
 1) The model is training on patches, and so we need to know where the brain is to sample patches inside the brain and avoid sampling patches containing only air.
 2) A limitation of our method is that is it is numerically unstable in areas with infinite covariance such as the air outside the brain.
@@ -54,8 +54,7 @@ To train the stochastic segmentation networks run:
 
 You can change the `job-dir` to whatever you like and use the different config files provided to run the baseline and larger model described in the paper.
 As described in the paper, we found no benefit in using the model with the larger patch for this application. 
-Since it takes significantly longer to train it, you can likely skip that.
-Change the `device` variable to the index of the GPU you wish to use or to `"cpu"`.
+Set `--device` to the index of the GPU you wish to use or to `"cpu"`.
     
 **Important:** do not use the numbers printed in the console during training for evaluation. 
 They are computed on patches, not on full images.
@@ -76,7 +75,8 @@ The inference script will output the mean of the distribution as the prediction 
 #### "Covariance became not invertible using independent normals for this batch!"
 
 This message occurs when a patch containing a lot of background is fed to the model.
-During inference, you do not need to worry about this since it does not change the final results in any way. It just means that we are processing the air around the brain. 
+During inference, you do not need to worry about this since it does not change the final results in any way. 
+It just means that we are processing the air around the brain. 
 During training this message can **very rarely** occurs when a patch is sampled contained a lot of background. 
 When this occurs, we decided to use independent normal distributions to prevent the code from crashing altogether.
 If during training with new data, you see this message occur very frequently, please consider changing your ROI masks. 
