@@ -127,7 +127,7 @@ if __name__ == '__main__':
                         required=True,
                         type=str,
                         help='Path to the prediction csv generated during inference')
-    parser.add_argument('--is_deterministic',
+    parser.add_argument('--is-deterministic',
                         default=False,
                         type=bool,
                         help='Set to true to evaluate the deterministic/benchmark model')
@@ -136,7 +136,7 @@ if __name__ == '__main__':
                         type=bool,
                         help='Set to true to compute extra evaluation and visualisation, takes much more time')
     parser.add_argument('--make-thumbs',
-                        default=True,
+                        default=False,
                         type=bool,
                         help='Set to true to produce and vector image with image sample thumbs')
 

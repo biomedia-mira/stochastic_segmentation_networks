@@ -116,7 +116,7 @@ if __name__ == '__main__':
                         type=bool,
                         help='Set to true to compute extra evaluation and visualisation, takes much more time')
     parser.add_argument('--make-thumbs',
-                        default=True,
+                        default=False,
                         type=bool,
                         help='Set to true to produce and vector image with image sample thumbs')
     parser.add_argument('--num-samples',
