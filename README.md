@@ -30,7 +30,7 @@ Install the necessary requirements on your environment of choice:
 
 ### BraTS 2017 
 To download the data, go to [this page](https://www.med.upenn.edu/sbia/brats2017/registration.html) and follow the instructions provided by the challenge's organisers. 
-Run the following script to preprocess the data:
+Run the following script to preprocess the data (`input-dir` should contain folders `HGG` and `LGG` inside):
 
     python evaluation/preprocessing.py --input-dir <path-to-input-dir> --output-dir <path-to-output-dir>
 
