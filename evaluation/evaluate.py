@@ -89,10 +89,10 @@ def evaluate(csv_path, deterministic, detailed=False, make_thumbs=False, num_sam
                           prob_map_name='prob_maps')
 
     running_metrics = evaluator(csv_path)
-
     for key, sampler in samplers.items():
         if key != 'deterministic_sampler' and make_thumbs:
-            make_sample_thumbs(os.path.join(os.path.dirname(csv_path), key + '.csv'), 1, 1)
+            make_sample_thumbs(os.path.join(os.path.dirname(csv_path), key + '.csv'),
+                               min(sampler['num_samples'], num_samples_cap), 10)
 
     overlap_metrics = OverlapMetrics(running_metrics['cm'])
     overlap_metrics.add_merged_dataframe(class_mergers)
